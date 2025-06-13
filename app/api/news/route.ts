@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { formatTimestamp } from '../../utils/dateFormatter';
+export const dynamic = 'force-dynamic';
 
 const fetchNewsData = async (category: string , page: number = 1) => {
     try {
