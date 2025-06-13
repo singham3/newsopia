@@ -25,11 +25,13 @@ export default function Home() {
   const [hasMoreNews, setHasMoreNews] = useState(true);
   const [currentCategory, setCurrentCategory] = useState('');
   const [isMobile, setIsMobile] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentMobileNewsIndex, setCurrentMobileNewsIndex] = useState(0);
   const [mobileNewsLoaded, setMobileNewsLoaded] = useState<NewsItem[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [page, setPage] = useState(1);
   const hasLoaded = useRef(false);
+  const sidebarRef = useRef<HTMLElement>(null);
   const categories = {
     "Trending News": "",
     "India": "national",
@@ -60,12 +62,22 @@ export default function Home() {
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
 
+    // Add click outside listener for mobile sidebar
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMobile && sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
-      handleScroll.cancel(); // cleanup lodash debounce
+      document.removeEventListener('mousedown', handleClickOutside);
+      handleScroll.cancel();
     };
-  }, [page]);
+  }, [page, isMobile]);
 
   const loadNews = async (
     categoryParam: string = currentCategory,
@@ -131,6 +143,7 @@ export default function Home() {
     if (wasMobile !== newIsMobile) {
       if (newIsMobile) {
         setupMobileView();
+        setIsSidebarOpen(false);
       } else {
         teardownMobileView();
       }
@@ -167,12 +180,21 @@ export default function Home() {
     }
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <>
-      <header className="sidebar">
+      <header className={`sidebar ${isSidebarOpen ? 'show' : ''}`} ref={sidebarRef}>
         <nav className="navbar navbar-dark">
           <a className="navbar-brand" href="/">Newsopia</a>
-          <button className="navbar-toggler d-block d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <button 
+            className="navbar-toggler d-block d-md-none" 
+            type="button" 
+            onClick={toggleSidebar}
+            aria-label="Toggle navigation"
+          >
             <span className="navbar-toggler-icon"></span>
           </button>
           <ul className="navbar-nav flex-column w-100">
@@ -184,6 +206,9 @@ export default function Home() {
                   onClick={(e) => {
                     e.preventDefault();
                     handleCategoryChange(value);
+                    if (isMobile) {
+                      setIsSidebarOpen(false);
+                    }
                   }}
                 >
                   {label}
@@ -193,6 +218,15 @@ export default function Home() {
           </ul>
         </nav>
       </header>
+
+      <button 
+        className="navbar-toggler d-md-none" 
+        type="button" 
+        onClick={toggleSidebar}
+        aria-label="Toggle navigation"
+      >
+        <span className="navbar-toggler-icon"></span>
+      </button>
 
       <main className="main-content">
         <div className="container">
