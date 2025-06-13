@@ -114,10 +114,7 @@ export default function Home() {
     }
   };
 
-
   const handleScroll = debounce(() => {
-    if (isMobile) return;
-
     const scrollHeight = Math.max(
       document.body.scrollHeight,
       document.documentElement.scrollHeight,
@@ -130,8 +127,19 @@ export default function Home() {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
     const clientHeight = document.documentElement.clientHeight || window.innerHeight;
 
+    // Check if we're near the bottom (within 300px)
     if (scrollTop + clientHeight >= scrollHeight - 300 && !loading && hasMoreNews) {
-      loadNews();
+      if (isMobile) {
+        // For mobile, load more news and update mobile view
+        loadNews().then(() => {
+          if (mobileNewsLoaded.length > 0) {
+            renderMobileNews(currentMobileNewsIndex);
+          }
+        });
+      } else {
+        // For desktop, just load more news
+        loadNews();
+      }
     }
   }, 300);
 
@@ -153,11 +161,20 @@ export default function Home() {
   const setupMobileView = () => {
     if (mobileNewsLoaded.length > 0) {
       renderMobileNews(0);
+    } else {
+      loadNews().then(() => {
+        if (mobileNewsLoaded.length > 0) {
+          renderMobileNews(0);
+        }
+      });
     }
   };
 
   const teardownMobileView = () => {
-    // Implementation for teardown
+    const mobileNewsView = document.getElementById('mobileNewsView');
+    if (mobileNewsView) {
+      mobileNewsView.innerHTML = '';
+    }
   };
 
   const renderMobileNews = (index: number) => {
@@ -166,7 +183,30 @@ export default function Home() {
     setCurrentMobileNewsIndex(index);
     const news = mobileNewsLoaded[index];
     
-    // Implementation for mobile news rendering
+    const mobileNewsView = document.getElementById('mobileNewsView');
+    if (mobileNewsView) {
+      mobileNewsView.innerHTML = `
+        <div class="mobile-news-card">
+          <div class="mobile-img-container">
+            <img src="${news.image}" alt="${news.title}" class="mobile-img" />
+          </div>
+          <div class="mobile-content">
+            <h2 class="mobile-title">${news.title}</h2>
+            <div class="mobile-meta">
+              <span><i class="fas fa-user-edit"></i> ${news.author}</span>
+              <span><i class="far fa-calendar-alt"></i> ${news.date}</span>
+            </div>
+            <p class="mobile-description">${news.description}</p>
+            <div class="mobile-actions">
+              <a href="${news.url}" class="mobile-read-more">Read More</a>
+              <button class="mobile-share">
+                <i class="fas fa-share-alt"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
   };
 
   const handleCategoryChange = (newCategory: string) => {
