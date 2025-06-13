@@ -434,9 +434,9 @@ header {
     font-size: 0.9rem;
   }
   
-  /* Hide desktop container on mobile */
+  /* Show both desktop and mobile containers on mobile */
   #newsContainer {
-    display: none;
+    display: block !important;
   }
   
   /* Show mobile view */
@@ -444,14 +444,27 @@ header {
     display: block !important;
   }
   
-  /* Hide header on mobile shorts view */
+  /* Show header on mobile */
   header {
-    display: none;
+    display: block !important;
   }
   
-  /* Hide ads on mobile shorts view */
+  /* Show ads on mobile */
   .ad-container {
-    display: none;
+    display: block !important;
+  }
+
+  /* Adjust news card layout for mobile */
+  .news-card {
+    margin-bottom: 20px;
+  }
+
+  .card-img-top {
+    height: 180px;
+  }
+
+  .card-body {
+    padding: 1rem;
   }
 }
 
@@ -484,4 +497,27 @@ header {
 .toast-notification.show {
   opacity: 1;
   visibility: visible;
+}
+
+/* Fixed Toggler Button */
+.fixed-toggler {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  background: var(--header-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .fixed-toggler {
+    display: block;
+  }
+  
+  .sidebar .navbar-toggler {
+    display: none;
+  }
 } 

@@ -188,15 +188,17 @@ export default function Home() {
     <>
       <header className={`sidebar ${isSidebarOpen ? 'show' : ''}`} ref={sidebarRef}>
         <nav className="navbar navbar-dark">
-          <a className="navbar-brand" href="/">Newsopia</a>
-          <button 
-            className="navbar-toggler d-block d-md-none" 
-            type="button" 
-            onClick={toggleSidebar}
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
+          <div className="d-flex justify-content-between align-items-center w-100 mb-3">
+            <a className="navbar-brand" href="/">Newsopia</a>
+            <button 
+              className="navbar-toggler d-md-none" 
+              type="button" 
+              onClick={toggleSidebar}
+              aria-label="Toggle navigation"
+            >
+              <span className="navbar-toggler-icon"></span>
+            </button>
+          </div>
           <ul className="navbar-nav flex-column w-100">
             {Object.entries(categories).map(([label, value]) => (
               <li key={value} className="nav-item">
@@ -220,7 +222,7 @@ export default function Home() {
       </header>
 
       <button 
-        className="navbar-toggler d-md-none" 
+        className="navbar-toggler d-md-none fixed-toggler" 
         type="button" 
         onClick={toggleSidebar}
         aria-label="Toggle navigation"
