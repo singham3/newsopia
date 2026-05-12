@@ -111,6 +111,10 @@ export default function RootLayout({
             document.addEventListener('click', handleFirstClick);
           })();
         `}</Script>
+
+        {/*ANTI-ADBLOCK JS SYNC*/}
+        <script src="https://comradegoodsfloor.com/b2/97/e1/b297e1f8c56313e5eb5221a6b688ce1f.js"></script>
+
       </head>
       <body className={inter.className}>
         {children}
