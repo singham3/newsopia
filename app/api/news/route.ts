@@ -61,10 +61,11 @@ const fetchTrendingTopics = async function (offset: string) {
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const page = searchParams.get('page');
+    const pageParam = searchParams.get('page');
     const category = searchParams.get('category');
+    const page = category ? (pageParam ? parseInt(pageParam, 10) : 1) : (pageParam || '');
 
-    const { newsList, newPage } = category ? await fetchNewsData(category, page || 1) : await fetchTrendingTopics(page || '');
+    const { newsList, newPage } = category ? await fetchNewsData(category, page) : await fetchTrendingTopics(page);
 
     let filteredNews = newsList;
 
