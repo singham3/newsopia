@@ -69,7 +69,6 @@ export async function GET(request: Request) {
 
     let filteredNews = newsList;
 
-    // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 600));
 
     const response = {
