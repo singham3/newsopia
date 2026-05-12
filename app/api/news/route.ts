@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 const fetchNewsData = async (category: string , page: number = 1) => {
     try {
-        const currentPage = parseInt(page, 10) || 1;
+        const currentPage = Number(page) || 1;
         const url = `https://inshorts.com/api/en/search/trending_topics/${category}?page=${currentPage}&type=NEWS_CATEGORY`;
         const response = await fetch(url);
         const data = await response.json();
