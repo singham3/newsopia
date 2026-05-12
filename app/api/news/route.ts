@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { formatTimestamp } from '../../utils/dateFormatter';
 export const dynamic = 'force-dynamic';
 
-const fetchNewsData = async (category: string , page: number = 1) => {
+const fetchNewsData = async (category, page) => {
     try {
         const currentPage = Number(page) || 1;
         const url = `https://inshorts.com/api/en/search/trending_topics/${category}?page=${currentPage}&type=NEWS_CATEGORY`;
@@ -30,7 +30,7 @@ const fetchNewsData = async (category: string , page: number = 1) => {
     }
 }
 
-const fetchTrendingTopics = async (offset: string) => {
+const fetchTrendingTopics = async (offset) => {
     try {
         const url = `https://inshorts.com/api/en/news?category=top_stories&max_limit=240&include_card_data=true${offset == '1' ? '' : '&offset=' + offset}`;
 
@@ -61,11 +61,10 @@ const fetchTrendingTopics = async (offset: string) => {
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const pageParam = searchParams.get('page');
-    const page = pageParam;
+    const page = searchParams.get('page');
     const category = searchParams.get('category');
 
-    const { newsList, newPage } = category ? await fetchNewsData(category, page) : await fetchTrendingTopics(String(page));
+    const { newsList, newPage } = category ? await fetchNewsData(category, page || 1) : await fetchTrendingTopics(page || '');
 
     let filteredNews = newsList;
 
