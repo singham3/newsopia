@@ -65,7 +65,7 @@ export async function GET(request: Request) {
     const category = searchParams.get('category');
     const page = category ? (pageParam ? parseInt(pageParam, 10) : 1) : (pageParam || '');
 
-    const { newsList, newPage } = category ? await fetchNewsData(category, page) : await fetchTrendingTopics(page);
+    const { newsList, newPage } = category ? await fetchNewsData(category, page as number) : await fetchTrendingTopics(page as string);
 
     let filteredNews = newsList;
 
