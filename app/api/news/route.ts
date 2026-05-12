@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { formatTimestamp } from '../../utils/dateFormatter';
 export const dynamic = 'force-dynamic';
 
-const fetchNewsData = async (category, page) => {
+const fetchNewsData = async function (category: string, page: number = 1) {
     try {
         const currentPage = Number(page) || 1;
         const url = `https://inshorts.com/api/en/search/trending_topics/${category}?page=${currentPage}&type=NEWS_CATEGORY`;
@@ -30,7 +30,7 @@ const fetchNewsData = async (category, page) => {
     }
 }
 
-const fetchTrendingTopics = async (offset) => {
+const fetchTrendingTopics = async function (offset: string) {
     try {
         const url = `https://inshorts.com/api/en/news?category=top_stories&max_limit=240&include_card_data=true${offset == '1' ? '' : '&offset=' + offset}`;
 
