@@ -198,7 +198,7 @@ export default function Home() {
             </div>
             <p class="mobile-description">${news.description}</p>
             <div class="mobile-actions">
-              <a href="${news.url}" class="mobile-read-more">Read More</a>
+              <a href="${news.url}" class="mobile-read-more" target="_blank">Read More</a>
               <button class="mobile-share">
                 <i class="fas fa-share-alt"></i>
               </button>
