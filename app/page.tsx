@@ -272,6 +272,12 @@ export default function Home() {
 
       <main className="main-content">
         <div className="container">
+          {/* Ad Banner Row */}
+          <div className="row mb-3">
+            <div className="col-12 text-center">
+              <div id="container-1b24974d21ee0f4e53d757afc5cab70d"></div>
+            </div>
+          </div>
           <div className="row" id="newsContainer">
             {news.map((item) => (
               <div key={item.id} className="col-md-6 col-lg-4 fade-in">

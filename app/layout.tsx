@@ -113,8 +113,6 @@ export default function RootLayout({
         `}</Script>
       </head>
       <body className={inter.className}>
-        {/* Container for Ad Script 7 */}
-        <div id="container-1b24974d21ee0f4e53d757afc5cab70d"></div>
         {children}
       </body>
     </html>
