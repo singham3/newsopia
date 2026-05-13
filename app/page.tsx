@@ -1,13 +1,6 @@
 "use client";
 import { debounce } from 'lodash';
-
-import { useEffect, useState, useRef } from 'react';
-import dynamic from 'next/dynamic';
-
-// Dynamically import Bootstrap JS to avoid SSR issues
-const BootstrapJS = dynamic(() => import('bootstrap/dist/js/bootstrap.bundle.min.js'), {
-  ssr: false
-});
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 interface NewsItem {
   id: number;
@@ -26,13 +19,18 @@ export default function Home() {
   const [currentCategory, setCurrentCategory] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [currentMobileNewsIndex, setCurrentMobileNewsIndex] = useState(0);
-  const [mobileNewsLoaded, setMobileNewsLoaded] = useState<NewsItem[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [page, setPage] = useState(1);
   const hasLoaded = useRef(false);
   const sidebarRef = useRef<HTMLElement>(null);
-  const categories = {
+  const snapContainerRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef(false);
+  const hasMoreRef = useRef(true);
+  const newsRef = useRef<NewsItem[]>([]);
+  const pageRef = useRef<number | string>(1);
+  const categoryRef = useRef('');
+
+  const categories: Record<string, string> = {
     "Trending News": "",
     "India": "national",
     "Business": "business",
@@ -52,6 +50,99 @@ export default function Home() {
     "Health Fitness": "Health___Fitness"
   };
 
+  // Keep refs in sync with state
+  useEffect(() => {
+    newsRef.current = news;
+  }, [news]);
+
+  useEffect(() => {
+    hasMoreRef.current = hasMoreNews;
+  }, [hasMoreNews]);
+
+  useEffect(() => {
+    categoryRef.current = currentCategory;
+  }, [currentCategory]);
+
+  const loadNews = useCallback(async (
+    categoryParam?: string,
+    pageParam?: number | string,
+    previousCategory?: string
+  ) => {
+    const cat = categoryParam ?? categoryRef.current;
+    const pg = pageParam ?? pageRef.current;
+
+    if (loadingRef.current || !hasMoreRef.current) return;
+    loadingRef.current = true;
+    setLoading(true);
+    try {
+      const url = `/api/news?category=${cat}&page=${pg}` + (previousCategory ? `&previous=${previousCategory}` : '');
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      const existingIds = new Set(newsRef.current.map(item => item.id));
+      const newNews = data.news.filter((newItem: NewsItem) =>
+        !existingIds.has(newItem.id)
+      );
+
+      setNews(prev => [...prev, ...newNews]);
+      setHasMoreNews(data.hasMore);
+      setPage(data.page);
+      pageRef.current = data.page;
+    } catch (error) {
+      console.error('Error loading news:', error);
+    } finally {
+      loadingRef.current = false;
+      setLoading(false);
+    }
+  }, []);
+
+  // Desktop infinite scroll handler
+  const handleScroll = useCallback(
+    debounce(() => {
+      if (isMobile) return; // Don't handle scroll on mobile
+
+      const scrollHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight,
+        document.body.clientHeight,
+        document.documentElement.clientHeight
+      );
+
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      const clientHeight = document.documentElement.clientHeight || window.innerHeight;
+
+      if (scrollTop + clientHeight >= scrollHeight - 300 && !loadingRef.current && hasMoreRef.current) {
+        loadNews();
+      }
+    }, 300),
+    [isMobile, loadNews]
+  );
+
+  // Mobile snap scroll handler — load more when near end
+  const handleSnapScroll = useCallback(
+    debounce(() => {
+      const container = snapContainerRef.current;
+      if (!container) return;
+
+      const scrollTop = container.scrollTop;
+      const scrollHeight = container.scrollHeight;
+      const clientHeight = container.clientHeight;
+
+      // Load more when within 2 cards of the bottom
+      if (scrollTop + clientHeight >= scrollHeight - clientHeight * 2 && !loadingRef.current && hasMoreRef.current) {
+        loadNews();
+      }
+    }, 200),
+    [loadNews]
+  );
+
+  const handleResize = useCallback(() => {
+    setIsMobile(window.innerWidth <= 768);
+  }, []);
+
   useEffect(() => {
     if (!hasLoaded.current) {
       setIsMobile(window.innerWidth <= 768);
@@ -62,9 +153,8 @@ export default function Home() {
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
 
-    // Add click outside listener for mobile sidebar
     const handleClickOutside = (event: MouseEvent) => {
-      if (isMobile && sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
         setIsSidebarOpen(false);
       }
     };
@@ -77,145 +167,68 @@ export default function Home() {
       document.removeEventListener('mousedown', handleClickOutside);
       handleScroll.cancel();
     };
-  }, [page, isMobile]);
+  }, [handleScroll, handleResize, loadNews]);
 
-  const loadNews = async (
-    categoryParam: string = currentCategory,
-    pageParam: number = page,
-    previousCategory?: string
-  ) => {
-    if (loading || !hasMoreNews) return;
-    setLoading(true);
+  // Attach snap scroll listener for mobile
+  useEffect(() => {
+    const container = snapContainerRef.current;
+    if (isMobile && container) {
+      container.addEventListener('scroll', handleSnapScroll);
+      return () => {
+        container.removeEventListener('scroll', handleSnapScroll);
+        handleSnapScroll.cancel();
+      };
+    }
+  }, [isMobile, handleSnapScroll]);
+
+  const handleShare = async (item: NewsItem) => {
+    const shareData = {
+      title: item.title,
+      text: item.description.length > 120 ? item.description.substring(0, 120) + '...' : item.description,
+      url: item.url,
+    };
+
     try {
-      const url = `/api/news?category=${categoryParam}&page=${pageParam}` +  (previousCategory ? `&previous=${previousCategory}` : '');
-
-      console.log('Fetching news from:', url);
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      const newNews = data.news.filter((newItem: NewsItem) =>
-        !news.some(existingItem => existingItem.id === newItem.id)
-      );
-      setNews(prev => [...prev, ...newNews]);
-      setHasMoreNews(data.hasMore);
-      setPage(data.page);
-
-      if (isMobile) {
-        const newMobileNews = data.news.filter((newItem: NewsItem) =>
-          !mobileNewsLoaded.some(existingItem => existingItem.id === newItem.id)
-        );
-        setMobileNewsLoaded(prev => [...prev, ...newMobileNews]);
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: copy link to clipboard
+        await navigator.clipboard.writeText(item.url);
+        showToast('Link copied to clipboard!');
       }
     } catch (error) {
-      console.error('Error loading news:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleScroll = debounce(() => {
-    const scrollHeight = Math.max(
-      document.body.scrollHeight,
-      document.documentElement.scrollHeight,
-      document.body.offsetHeight,
-      document.documentElement.offsetHeight,
-      document.body.clientHeight,
-      document.documentElement.clientHeight
-    );
-
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-    const clientHeight = document.documentElement.clientHeight || window.innerHeight;
-
-    // Check if we're near the bottom (within 300px)
-    if (scrollTop + clientHeight >= scrollHeight - 300 && !loading && hasMoreNews) {
-      if (isMobile) {
-        // For mobile, load more news and update mobile view
-        loadNews().then(() => {
-          if (mobileNewsLoaded.length > 0) {
-            renderMobileNews(currentMobileNewsIndex);
-          }
-        });
-      } else {
-        // For desktop, just load more news
-        loadNews();
-      }
-    }
-  }, 300);
-
-  const handleResize = () => {
-    const wasMobile = isMobile;
-    const newIsMobile = window.innerWidth <= 768;
-    setIsMobile(newIsMobile);
-    
-    if (wasMobile !== newIsMobile) {
-      if (newIsMobile) {
-        setupMobileView();
-        setIsSidebarOpen(false);
-      } else {
-        teardownMobileView();
+      // User cancelled share or error occurred — ignore AbortError
+      if ((error as DOMException).name !== 'AbortError') {
+        console.error('Share failed:', error);
       }
     }
   };
 
-  const setupMobileView = () => {
-    if (mobileNewsLoaded.length > 0) {
-      renderMobileNews(0);
-    } else {
-      loadNews().then(() => {
-        if (mobileNewsLoaded.length > 0) {
-          renderMobileNews(0);
-        }
-      });
-    }
-  };
+  const showToast = (message: string) => {
+    const existing = document.querySelector('.toast-notification');
+    if (existing) existing.remove();
 
-  const teardownMobileView = () => {
-    const mobileNewsView = document.getElementById('mobileNewsView');
-    if (mobileNewsView) {
-      mobileNewsView.innerHTML = '';
-    }
-  };
-
-  const renderMobileNews = (index: number) => {
-    if (index >= mobileNewsLoaded.length) return;
-    
-    setCurrentMobileNewsIndex(index);
-    const news = mobileNewsLoaded[index];
-    
-    const mobileNewsView = document.getElementById('mobileNewsView');
-    if (mobileNewsView) {
-      mobileNewsView.innerHTML = `
-        <div class="mobile-news-card">
-          <div class="mobile-img-container">
-            <img src="${news.image}" alt="${news.title}" class="mobile-img" />
-          </div>
-          <div class="mobile-content">
-            <h2 class="mobile-title">${news.title}</h2>
-            <div class="mobile-meta">
-              <span><i class="fas fa-user-edit"></i> ${news.author}</span>
-              <span><i class="far fa-calendar-alt"></i> ${news.date}</span>
-            </div>
-            <p class="mobile-description">${news.description}</p>
-            <div class="mobile-actions">
-              <a href="${news.url}" class="mobile-read-more" target="_blank">Read More</a>
-              <button class="mobile-share">
-                <i class="fas fa-share-alt"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification show';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 2000);
   };
 
   const handleCategoryChange = (newCategory: string) => {
     if (newCategory !== currentCategory) {
       const previousCategory = currentCategory;
       setNews([]);
+      newsRef.current = [];
       setPage(1);
+      pageRef.current = 1;
       setHasMoreNews(true);
+      hasMoreRef.current = true;
       setCurrentCategory(newCategory);
+      categoryRef.current = newCategory;
       loadNews(newCategory, 1, previousCategory);
     }
   };
@@ -224,10 +237,91 @@ export default function Home() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // -- Render: Desktop news card --
+  const renderDesktopCard = (item: NewsItem) => (
+    <div key={item.id} className="col-md-6 col-lg-4 fade-in">
+      <article className="news-card" data-id={item.id}>
+        <div className="img-container position-relative">
+          <div className="img-placeholder"></div>
+          <img
+            src={item.image}
+            className="card-img-top"
+            alt={item.title}
+            loading="lazy"
+            style={{ display: 'none' }}
+            onLoad={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.style.display = 'block';
+              const placeholder = img.previousElementSibling as HTMLElement;
+              if (placeholder) placeholder.style.display = 'none';
+            }}
+          />
+        </div>
+        <div className="card-body">
+          <h2 className="card-title">{item.title}</h2>
+          <div className="card-meta">
+            <span><i className="fas fa-user-edit me-1"></i> {item.author}</span>
+            <span><i className="far fa-calendar-alt me-1"></i> {item.date}</span>
+          </div>
+          <p className="card-text">
+            {item.description.length > 150
+              ? item.description.substring(0, 150) + '...'
+              : item.description}
+          </p>
+          <div className="card-actions">
+            <a href={item.url} className="read-more" target="_blank" rel="noopener noreferrer">Read More</a>
+            <button
+              className="share-button"
+              onClick={() => handleShare(item)}
+              aria-label={`Share ${item.title}`}
+            >
+              <i className="fas fa-share-alt"></i>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  );
+
+  // -- Render: Mobile snap card --
+  const renderMobileSnapCard = (item: NewsItem) => (
+    <article key={item.id} className="snap-card">
+      <div className="snap-card-image">
+        <img
+          src={item.image}
+          alt={item.title}
+          loading="lazy"
+        />
+        <div className="snap-card-gradient"></div>
+      </div>
+      <div className="snap-card-content">
+        <span className="snap-card-category">{item.category || 'News'}</span>
+        <h2 className="snap-card-title">{item.title}</h2>
+        <div className="snap-card-meta">
+          <span><i className="fas fa-user-edit"></i> {item.author}</span>
+          <span><i className="far fa-calendar-alt"></i> {item.date}</span>
+        </div>
+        <p className="snap-card-description">{item.description}</p>
+        <div className="snap-card-actions">
+          <a href={item.url} className="read-more" target="_blank" rel="noopener noreferrer">
+            Read Full Article
+          </a>
+          <button
+            className="share-button"
+            onClick={() => handleShare(item)}
+            aria-label={`Share ${item.title}`}
+          >
+            <i className="fas fa-share-alt"></i>
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+
   return (
     <>
       <header className={`sidebar ${isSidebarOpen ? 'show' : ''}`} ref={sidebarRef}>
-        <nav className="navbar navbar-dark">
+        <nav className="navbar navbar-dark" aria-label="Category navigation">
           <div className="d-flex justify-content-between align-items-center w-100 mb-3">
             <a className="navbar-brand" href="/">Newsopia</a>
             <button 
@@ -244,7 +338,8 @@ export default function Home() {
               <li key={value} className="nav-item">
                 <a
                   className={`nav-link ${currentCategory === value ? 'active' : ''}`}
-                  type="button"
+                  href="#"
+                  role="button"
                   onClick={(e) => {
                     e.preventDefault();
                     handleCategoryChange(value);
@@ -270,110 +365,47 @@ export default function Home() {
         <span className="navbar-toggler-icon"></span>
       </button>
 
-      <main className="main-content">
-        <div className="container">
-          {/* Ad Banner Row */}
-          <div className="row mb-3">
-            <div className="col-12 text-center">
-              <div id="container-1b24974d21ee0f4e53d757afc5cab70d"></div>
-            </div>
+      {/* -- MOBILE: Vertical snap scrolling -- */}
+      {isMobile ? (
+        <main className="snap-scroll-container" ref={snapContainerRef}>
+          {/* Ad Banner snap card */}
+          <div className="snap-card snap-card-ad">
+            <div id="container-1b24974d21ee0f4e53d757afc5cab70d"></div>
           </div>
-          <div className="row" id="newsContainer">
-            {news.map((item) => (
-              <div key={item.id} className="col-md-6 col-lg-4 fade-in">
-                <div className="news-card" data-id={item.id}>
-                  <div className="img-container position-relative">
-                    <div className="img-placeholder"></div>
-                    <img
-                      src={item.image}
-                      className="card-img-top"
-                      alt={item.title}
-                      style={{ display: 'none' }}
-                      onLoad={(e) => {
-                        const img = e.target as HTMLImageElement;
-                        img.style.display = 'block';
-                        const placeholder = img.previousElementSibling as HTMLElement;
-                        if (placeholder) placeholder.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                  <div className="card-body">
-                    <h5 className="card-title">{item.title}</h5>
-                    <div className="card-meta">
-                      <span><i className="fas fa-user-edit me-1"></i> {item.author}</span>
-                      <span><i className="far fa-calendar-alt me-1"></i> {item.date}</span>
-                    </div>
-                    <p className="card-text">
-                      {item.description.length > 150
-                        ? item.description.substring(0, 150) + '...'
-                        : item.description}
-                    </p>
-                    <div className="card-actions">
-                      <a href={item.url} className="read-more">Read More</a>
-                      <button className="share-button">
-                        <i className="fas fa-share-alt"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+
+          {news.map((item) => renderMobileSnapCard(item))}
+
           {loading && (
-            <div className="text-center mb-5">
+            <div className="snap-card snap-card-loading">
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
             </div>
           )}
-        </div>
-      </main>
-
-      <div id="mobileNewsView" className="d-none">
-        <div className="mobile-news-container">
-          {/* Mobile news cards will be dynamically inserted here */}
-        </div>
-      </div>
-
-      {/* Share Modal */}
-      <div className="modal fade" id="shareModal" tabIndex={-1}>
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content glass-effect">
-            <div className="modal-header">
-              <h5 className="modal-title">Share this news</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div className="modal-body">
-              <div className="d-flex justify-content-around">
-                <a href="#" className="share-btn" id="shareFacebook">
-                  <i className="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" className="share-btn" id="shareTwitter">
-                  <i className="fab fa-twitter"></i>
-                </a>
-                <a href="#" className="share-btn" id="shareLinkedIn">
-                  <i className="fab fa-linkedin-in"></i>
-                </a>
-                <a href="#" className="share-btn" id="shareWhatsApp">
-                  <i className="fab fa-whatsapp"></i>
-                </a>
-                <a href="#" className="share-btn" id="shareEmail">
-                  <i className="fas fa-envelope"></i>
-                </a>
+        </main>
+      ) : (
+        /* -- DESKTOP: Infinite scrolling -- */
+        <main className="main-content">
+          <div className="container">
+            {/* Ad Banner Row */}
+            <div className="row mb-3">
+              <div className="col-12 text-center">
+                <div id="container-1b24974d21ee0f4e53d757afc5cab70d"></div>
               </div>
-              <div className="mt-3">
-                <label htmlFor="shareLink" className="form-label">Copy link:</label>
-                <div className="input-group">
-                  <input type="text" className="form-control" id="shareLink" readOnly />
-                  <button className="btn btn-outline-secondary" type="button" id="copyLinkBtn">
-                    Copy
-                  </button>
+            </div>
+            <div className="row" id="newsContainer">
+              {news.map((item) => renderDesktopCard(item))}
+            </div>
+            {loading && (
+              <div className="text-center mb-5">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
                 </div>
               </div>
-            </div>
+            )}
           </div>
-        </div>
-      </div>
+        </main>
+      )}
     </>
   );
-} 
+}

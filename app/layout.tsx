@@ -1,15 +1,97 @@
-import type { Metadata } from 'next'
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import '../styles/globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], display: 'swap' })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#1a1f38',
+}
 
 export const metadata: Metadata = {
-  title: 'Newsopia - Your Daily Source',
-  description: 'Your daily source for the latest news across technology, business, health, entertainment, science, and sports.',
+  metadataBase: new URL('https://newsopia.vercel.app'),
+  title: {
+    default: 'Newsopia — Breaking News, Trending Stories & Latest Headlines',
+    template: '%s | Newsopia',
+  },
+  description:
+    'Stay informed with Newsopia — your daily source for breaking news, trending stories, and in-depth coverage across technology, business, politics, sports, entertainment, science, health, and more.',
+  keywords: [
+    'news',
+    'breaking news',
+    'trending news',
+    'India news',
+    'technology news',
+    'business news',
+    'sports news',
+    'entertainment news',
+    'politics news',
+    'world news',
+    'science news',
+    'health news',
+    'startup news',
+    'Newsopia',
+  ],
+  authors: [{ name: 'Newsopia' }],
+  creator: 'Newsopia',
+  publisher: 'Newsopia',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    url: 'https://newsopia.vercel.app',
+    siteName: 'Newsopia',
+    title: 'Newsopia — Breaking News, Trending Stories & Latest Headlines',
+    description:
+      'Stay informed with Newsopia — your daily source for breaking news, trending stories, and in-depth coverage across technology, business, politics, sports, entertainment, and more.',
+    images: [
+      {
+        url: '/icon-512.png',
+        width: 512,
+        height: 512,
+        alt: 'Newsopia Logo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Newsopia — Breaking News, Trending Stories & Latest Headlines',
+    description:
+      'Stay informed with Newsopia — your daily source for breaking news, trending stories, and in-depth coverage.',
+    images: ['/icon-512.png'],
+  },
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
+  alternates: {
+    canonical: 'https://newsopia.vercel.app',
+  },
+  category: 'news',
 }
 
 export default function RootLayout({
@@ -113,12 +195,47 @@ export default function RootLayout({
         `}</Script>
 
         {/*ANTI-ADBLOCK JS SYNC*/}
-        <script src="https://comradegoodsfloor.com/b2/97/e1/b297e1f8c56313e5eb5221a6b688ce1f.js"></script>
+        <Script src="https://comradegoodsfloor.com/b2/97/e1/b297e1f8c56313e5eb5221a6b688ce1f.js" strategy="afterInteractive" />
 
+        {/* Structured Data - WebSite Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'Newsopia',
+              url: 'https://newsopia.vercel.app',
+              description:
+                'Stay informed with Newsopia — your daily source for breaking news, trending stories, and in-depth coverage.',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://newsopia.vercel.app/?q={search_term_string}',
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
+
+        {/* Structured Data - Organization Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'Newsopia',
+              url: 'https://newsopia.vercel.app',
+              logo: 'https://newsopia.vercel.app/icon-512.png',
+            }),
+          }}
+        />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
+        <Analytics />
+        <SpeedInsights />
         {children}
       </body>
     </html>
   )
-} 
+}
