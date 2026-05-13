@@ -248,10 +248,15 @@ export default function Home() {
             className="card-img-top"
             alt={item.title}
             loading="lazy"
-            style={{ display: 'none' }}
             onLoad={(e) => {
               const img = e.target as HTMLImageElement;
-              img.style.display = 'block';
+              img.classList.add('loaded');
+              const placeholder = img.previousElementSibling as HTMLElement;
+              if (placeholder) placeholder.style.display = 'none';
+            }}
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.classList.add('loaded');
               const placeholder = img.previousElementSibling as HTMLElement;
               if (placeholder) placeholder.style.display = 'none';
             }}

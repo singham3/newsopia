@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: '%s | Newsopia',
   },
   description:
-    'Stay informed with Newsopia — your daily source for breaking news, trending stories, and in-depth coverage across technology, business, politics, sports, entertainment, science, health, and more.',
+    `Stay informed with Newsopia — breaking news, trending stories, and in-depth coverage across tech, business, politics, sports, and more.`,
   keywords: [
     'news',
     'breaking news',
