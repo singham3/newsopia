@@ -102,6 +102,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-SCZ6MYC8XM"></Script>
+        <Script>{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-SCZ6MYC8XM');
+          `}
+        </Script>
         {/* Ad Script 1 - 160x300 */}
         <Script id="at-options-1" strategy="beforeInteractive">{`
           atOptions = {
