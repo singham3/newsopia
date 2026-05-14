@@ -373,11 +373,6 @@ export default function Home() {
       {/* -- MOBILE: Vertical snap scrolling -- */}
       {isMobile ? (
         <main className="snap-scroll-container" ref={snapContainerRef}>
-          {/* Ad Banner snap card */}
-          <div className="snap-card snap-card-ad">
-            <div id="container-1b24974d21ee0f4e53d757afc5cab70d"></div>
-          </div>
-
           {news.map((item) => renderMobileSnapCard(item))}
 
           {loading && (
