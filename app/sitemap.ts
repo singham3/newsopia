@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://newsopia.vercel.app'
+  const baseUrl = 'https://newsopia.webomint.com'
 
   return [
     {

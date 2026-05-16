@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://newsopia.vercel.app'),
+  metadataBase: new URL('https://newsopia.webomint.com'),
   title: {
     default: 'Newsopia — Breaking News, Trending Stories & Latest Headlines',
     template: '%s | Newsopia',
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://newsopia.vercel.app',
+    url: 'https://newsopia.webomint.com',
     siteName: 'Newsopia',
     title: 'Newsopia — Breaking News, Trending Stories & Latest Headlines',
     description:
@@ -89,7 +89,7 @@ export const metadata: Metadata = {
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   alternates: {
-    canonical: 'https://newsopia.vercel.app',
+    canonical: 'https://newsopia.webomint.com',
   },
   category: 'news',
 }
@@ -214,12 +214,12 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
               name: 'Newsopia',
-              url: 'https://newsopia.vercel.app',
+              url: 'https://newsopia.webomint.com',
               description:
                 'Stay informed with Newsopia — your daily source for breaking news, trending stories, and in-depth coverage.',
               potentialAction: {
                 '@type': 'SearchAction',
-                target: 'https://newsopia.vercel.app/?q={search_term_string}',
+                target: 'https://newsopia.webomint.com/?q={search_term_string}',
                 'query-input': 'required name=search_term_string',
               },
             }),
@@ -234,8 +234,8 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'Newsopia',
-              url: 'https://newsopia.vercel.app',
-              logo: 'https://newsopia.vercel.app/icon-512.png',
+              url: 'https://newsopia.webomint.com',
+              logo: 'https://newsopia.webomint.com/icon-512.png',
             }),
           }}
         />
