@@ -9,7 +9,6 @@ const fetchNewsData = async function (category: string, page: number = 1) {
         const response = await fetch(url);
         const data = await response.json();
         const newPage = currentPage + 1;
-        console.log(url);
         if (data.data.news_list) {
             const newsList = data.data.news_list.map((item: any) => ({
                 id: item.news_obj.hash_id,
@@ -37,7 +36,6 @@ const fetchTrendingTopics = async function (offset: string) {
         const response = await fetch(url);
         const data = await response.json();
         const newOffset = data.data.min_news_id;
-        console.log(url);
         if (data.data.news_list) {
             const newsList = data.data.news_list.map((item: any) => ({
                 id: item.news_obj.hash_id,

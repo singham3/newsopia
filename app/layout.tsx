@@ -114,74 +114,74 @@ export default function RootLayout({
         {/* Ad Script 1 - 160x300 */}
         <Script id="at-options-1" strategy="beforeInteractive">{`
           atOptions = {
-            'key' : 'f1b8e51703a545445c8f7b14add3964f',
+            'key' : '9d67087869ff70ac6a0a1da93eb14f3c',
             'format' : 'iframe',
             'height' : 300,
             'width' : 160,
             'params' : {}
           };
         `}</Script>
-        <Script src="https://www.highperformanceformat.com/f1b8e51703a545445c8f7b14add3964f/invoke.js" strategy="beforeInteractive" />
+        <Script async data-cfasync="false" src="https://comradegoodsfloor.com/9d67087869ff70ac6a0a1da93eb14f3c/invoke.js" strategy="beforeInteractive" />
 
         {/* Ad Script 2 - 160x600 */}
         <Script id="at-options-2" strategy="beforeInteractive">{`
           atOptions = {
-            'key' : 'b2efc22cb5163a0f57f6571edfa0f5b0',
+            'key' : '278841d55b93dbc79dc3773642de2fad',
             'format' : 'iframe',
             'height' : 600,
             'width' : 160,
             'params' : {}
           };
         `}</Script>
-        <Script src="https://www.highperformanceformat.com/b2efc22cb5163a0f57f6571edfa0f5b0/invoke.js" strategy="beforeInteractive" />
+        <Script src="https://comradegoodsfloor.com/278841d55b93dbc79dc3773642de2fad/invoke.js" strategy="beforeInteractive" />
 
         {/* Ad Script 3 - 300x250 */}
         <Script id="at-options-3" strategy="beforeInteractive">{`
           atOptions = {
-            'key' : '59b15ab927b540d077ad073ee468820b',
+            'key' : '1ba1f80c5a20c9921a4eb80401c5c6a2',
             'format' : 'iframe',
             'height' : 250,
             'width' : 300,
             'params' : {}
           };
         `}</Script>
-        <Script src="https://www.highperformanceformat.com/59b15ab927b540d077ad073ee468820b/invoke.js" strategy="beforeInteractive" />
+        <Script src="https://www.highperformanceformat.com/1ba1f80c5a20c9921a4eb80401c5c6a2/invoke.js" strategy="beforeInteractive" />
 
         {/* Ad Script 4 - 320x50 */}
         <Script id="at-options-4" strategy="beforeInteractive">{`
           atOptions = {
-            'key' : 'a6d4a8a4b73d73c2a7f435b36da104a4',
+            'key' : 'f6998ad0fa3335207706c961ebf696db',
             'format' : 'iframe',
             'height' : 50,
             'width' : 320,
             'params' : {}
           };
         `}</Script>
-        <Script src="https://www.highperformanceformat.com/a6d4a8a4b73d73c2a7f435b36da104a4/invoke.js" strategy="beforeInteractive" />
+        <Script src="https://www.highperformanceformat.com/f6998ad0fa3335207706c961ebf696db/invoke.js" strategy="beforeInteractive" />
 
         {/* Ad Script 5 - 468x60 */}
         <Script id="at-options-5" strategy="beforeInteractive">{`
           atOptions = {
-            'key' : '1b8c1e6a070dcec0519459d511e9b1e7',
+            'key' : 'e8091eb6290da014a96ba7651a2d5e90',
             'format' : 'iframe',
             'height' : 60,
             'width' : 468,
             'params' : {}
           };
         `}</Script>
-        <Script src="https://www.highperformanceformat.com/1b8c1e6a070dcec0519459d511e9b1e7/invoke.js" strategy="beforeInteractive" />
+        <Script src="https://www.highperformanceformat.com/e8091eb6290da014a96ba7651a2d5e90/invoke.js" strategy="beforeInteractive" />
 
         {/* Ad Script 6 - 728x90 */}
         <Script id="at-options-6" strategy="beforeInteractive">{`
           atOptions = {
-            'key' : 'd8113f3108cabf3d121938b6b859840e',
+            'key' : '187a22bd4a6233ca47505325a2b70bf9',
             'format' : 'iframe',
             'height' : 90,
             'width' : 728,
             'params' : {}
           };
         `}</Script>
-        <Script src="https://www.highperformanceformat.com/d8113f3108cabf3d121938b6b859840e/invoke.js" strategy="beforeInteractive" />
+        <Script src="https://www.highperformanceformat.com/187a22bd4a6233ca47505325a2b70bf9/invoke.js" strategy="beforeInteractive" />
 
         {/* Ad Script 7 - Native */}
         <Script async data-cfasync="false" src="https://pl29426959.profitablecpmratenetwork.com/1b24974d21ee0f4e53d757afc5cab70d/invoke.js" strategy="afterInteractive" />
@@ -195,7 +195,7 @@ export default function RootLayout({
             function handleFirstClick() {
               if (!sessionStorage.getItem('redirected')) {
                 sessionStorage.setItem('redirected', '1');
-                window.open('https://www.profitablecpmratenetwork.com/nfuuvba269?key=b8c0fc4eff4983932bf9754fa83da99b', '_blank');
+                window.open('https://comradegoodsfloor.com/s6tqatsn60?key=6c7dd53437f1a23c2fbbe9da311e8976', '_blank');
               }
               document.removeEventListener('click', handleFirstClick);
             }
@@ -204,7 +204,8 @@ export default function RootLayout({
         `}</Script>
 
         {/*ANTI-ADBLOCK JS SYNC*/}
-        <Script src="https://comradegoodsfloor.com/b2/97/e1/b297e1f8c56313e5eb5221a6b688ce1f.js" strategy="afterInteractive" />
+        <Script src="https://comradegoodsfloor.com/5e/fb/1d/5efb1d7078bbf5993f6135d9cbf6222d.js" strategy="afterInteractive" />
+        <Script src="https://comradegoodsfloor.com/e4/c8/bd/e4c8bdca236bb73edca9f1c10a600b48.js" strategy="afterInteractive" />
 
         {/* Structured Data - WebSite Schema */}
         <script
